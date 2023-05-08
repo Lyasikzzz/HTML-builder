@@ -10,14 +10,23 @@ fs.mkdir(pathNewFolder, { recursive: true }, (err)=>{
 
     fs.readFile('./06-build-page/template.html', 'utf-8', (err, text) => {
         fs.readdir(pathComponents, (err, data) => {
-            let htmlText = text;
-            for (let i = 0; i < data.length; i++) {
-                fs.readFile(`${pathComponents}/${data[i]}`, 'utf-8', (err, textHtmlFile) => {
-                    htmlText = htmlText.replace(`{{${path.parse(data[i]).name}}}`, textHtmlFile);
-                    if (i === data.length - 1) {
-                        fs.writeFile(`${pathNewFolder}/index.html`, htmlText, (err)=>{if (err) {console.log(err)}});
-                    }
-                });
+            if (err) {
+                console.log('ошибка чтения папки с компонентами: \n' + err);
+            } else {
+                let htmlText = text,
+                    nameFile = '',
+                    num = 0;
+                for (let i = 0; i < data.length; i++) {
+                    fs.readFile(`${pathComponents}/${data[i]}`, 'utf-8', (err, textHtmlFile) => {
+                        nameFile = data[i].substring(0, data[i].length - 5);
+                        htmlText = htmlText.replace(`{{${nameFile}}}`, textHtmlFile);
+                        num += 1;
+/*                         console.log(num + '\n' + htmlText + '\n\n'); */
+                        if (num === data.length) {
+                            fs.writeFile(`${pathNewFolder}/index.html`, htmlText, ()=>{});
+                        }
+                    });
+                }
             }
         });
     });
